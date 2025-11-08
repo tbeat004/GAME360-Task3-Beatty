@@ -65,7 +65,7 @@ public class AchievementSystem : MonoBehaviour
         float timeRemaining = (float)data;
         
         // Check for Enemy Hunter Achievement (complete with 85+ seconds remaining)
-        if (timeRemaining <= 80f && !unlockedAchievements.Contains("Enemy Hunter"))
+        if (timeRemaining >= 85f && !unlockedAchievements.Contains("Enemy hunter"))
         {
             UnlockAchievement("Enemy Destroyer");
         }
@@ -74,7 +74,6 @@ public class AchievementSystem : MonoBehaviour
 
     private void UnlockAchievement(string achievementName)
     {
-        
         unlockedAchievements.Add(achievementName);
         Debug.Log($"AchievementSystem: Achievement Unlocked - {achievementName}!");
         
