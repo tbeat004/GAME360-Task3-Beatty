@@ -35,6 +35,13 @@ public class AchievementSystem : MonoBehaviour
         if (enemiesDefeated >= 10 && !unlockedAchievements.Contains("Enemy Hunter"))
         {
             UnlockAchievement("Enemy Hunter");
+            
+            // Check if they got it fast enough for bonus achievement
+            float timeRemaining = GameManager.Instance.GetTimeLeft();
+            if (timeRemaining >= 85f && !unlockedAchievements.Contains("Enemy Destroyer"))
+            {
+                UnlockAchievement("Enemy Destroyer");
+            }
         }
     }
 
@@ -63,12 +70,6 @@ public class AchievementSystem : MonoBehaviour
     private void OnTimerTicked(object data)
     {
         float timeRemaining = (float)data;
-        
-        // Check for Enemy Hunter Achievement (complete with 85+ seconds remaining)
-        if (timeRemaining <= 80f && !unlockedAchievements.Contains("Enemy Hunter"))
-        {
-            UnlockAchievement("Enemy Destroyer");
-        }
         
     }
 

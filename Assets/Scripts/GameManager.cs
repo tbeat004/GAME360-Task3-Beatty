@@ -67,6 +67,11 @@ public class GameManager : MonoBehaviour
         score += amount;
         EventManager.Instance.TriggerEvent(GameEvents.onScoreChanged, score);
     }
+    
+    public float GetTimeLeft()
+    {
+        return timeLeft;
+    }
 
     private void OnEnemyDefeated(object data)
     {
