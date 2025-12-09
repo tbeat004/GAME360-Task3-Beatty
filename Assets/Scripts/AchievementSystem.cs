@@ -16,6 +16,7 @@ public class AchievementSystem : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
         EventManager.Instance.Subscribe(GameEvents.onScoreChanged, OnScoreChanged);
         EventManager.Instance.Subscribe(GameEvents.onTimerTicked, OnTimerTicked);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
     }
 
     private void OnDestroy()
@@ -25,6 +26,7 @@ public class AchievementSystem : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
         EventManager.Instance.Unsubscribe(GameEvents.onScoreChanged, OnScoreChanged);
         EventManager.Instance.Unsubscribe(GameEvents.onTimerTicked, OnTimerTicked);
+        EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
     }
 
     private void OnEnemyDefeated(object data)
@@ -54,6 +56,8 @@ public class AchievementSystem : MonoBehaviour
         {
             UnlockAchievement("Collector");
         }
+        
+        // Also tracked by GameManager for power-up charges
     }
 
     private void OnScoreChanged(object data)
@@ -71,6 +75,15 @@ public class AchievementSystem : MonoBehaviour
     {
         float timeRemaining = (float)data;
         
+    }
+    
+    private void OnPowerUpActivated(object data)
+    {
+        // Achievement for activating power-up for the first time
+        if (!unlockedAchievements.Contains("Charged Up"))
+        {
+            UnlockAchievement("Charged Up");
+        }
     }
 
     private void UnlockAchievement(string achievementName)

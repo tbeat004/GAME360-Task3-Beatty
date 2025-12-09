@@ -13,4 +13,6 @@ public static class GameEvents
 
     public const string onBulletShot = "onBulletShot";
     public const string onBulletMissed = "onBulletMissed";
+    public const string onPowerUpActivated = "onPowerUpActivated";
+    public const string onPowerUpDeactivated = "onPowerUpDeactivated";
 }

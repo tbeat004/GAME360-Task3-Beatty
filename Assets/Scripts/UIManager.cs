@@ -6,6 +6,8 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private TextMeshProUGUI chargesText;
+    [SerializeField] private TextMeshProUGUI powerUpText;
     [SerializeField] private GameObject levelCompletePanel;
     [SerializeField] private TextMeshProUGUI achievementText;
     
@@ -29,6 +31,15 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Subscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Subscribe(GameEvents.onBulletMissed, OnBulletMissed);
+        EventManager.Instance.Subscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+        
+        // Initialize charge and power-up UI
+        if (chargesText != null)
+            chargesText.text = "Charges: 0/10";
+        if (powerUpText != null)
+            powerUpText.enabled = false;
     }
 
     private void OnDestroy()
@@ -40,6 +51,9 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Unsubscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Unsubscribe(GameEvents.onBulletMissed, OnBulletMissed);
+        EventManager.Instance.Unsubscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
     }
 
     private void OnScoreChanged(object data)
@@ -127,5 +141,50 @@ public class UIManager : MonoBehaviour
     private void HideAchievementPopup()
     {
         achievementText.enabled = false;
+    }
+    
+    private void OnCollectibleCollected(object data)
+    {
+        int charges = GameManager.Instance.GetCurrentCharges();
+        if (chargesText != null)
+        {
+            chargesText.text = $"Charges: {charges}/10";
+            Debug.Log($"UIManager: Updated charges to {charges}/10");
+        }
+    }
+    
+    private void OnPowerUpActivated(object data)
+    {
+        float duration = (float)data;
+        if (powerUpText != null)
+        {
+            powerUpText.enabled = true;
+            powerUpText.color = Color.yellow;
+            powerUpText.text = "POWER-UP ACTIVE! +20% Score!";
+            Debug.Log("UIManager: Power-up activated!");
+        }
+        StartCoroutine(UpdatePowerUpTimer());
+    }
+    
+    private void OnPowerUpDeactivated(object data)
+    {
+        if (powerUpText != null)
+        {
+            powerUpText.enabled = false;
+            Debug.Log("UIManager: Power-up deactivated");
+        }
+    }
+    
+    private IEnumerator UpdatePowerUpTimer()
+    {
+        while (GameManager.Instance.IsPowerUpActive())
+        {
+            float timeLeft = GameManager.Instance.GetPowerUpTimeLeft();
+            if (powerUpText != null)
+            {
+                powerUpText.text = $"POWER-UP! +20% Score ({timeLeft:F1}s)";
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }
