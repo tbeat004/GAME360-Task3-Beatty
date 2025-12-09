@@ -91,9 +91,15 @@ public class GameManager : MonoBehaviour
 
     public void AddScore(int amount)
     {
-        // Apply score multipliers: base (1.0) + power-up bonus (0.2) + stage bonus (0.5, 1.0, etc.)
-        // Multipliers are additive: 1.0 + 0.2 (power-up) + 0.5 (mid game) = 1.7x total
-        float totalMultiplier = scoreMultiplier + (stageScoreMultiplier - 1.0f);
+        // Apply score multipliers: base (1.0) + power-up bonus (0.2) + stage bonus (0.5, 1.0, etc.) + combo bonus
+        // Multipliers are additive: 1.0 + 0.2 (power-up) + 0.5 (mid game) + 0.3 (B rank combo) = 2.0x total
+        float comboBonus = 0f;
+        if (ComboSystem.Instance != null)
+        {
+            comboBonus = ComboSystem.Instance.GetScoreMultiplier();
+        }
+        
+        float totalMultiplier = scoreMultiplier + (stageScoreMultiplier - 1.0f) + comboBonus;
         int finalAmount = Mathf.RoundToInt(amount * totalMultiplier);
         score += finalAmount;
         EventManager.Instance.TriggerEvent(GameEvents.onScoreChanged, score);
@@ -121,9 +127,17 @@ public class GameManager : MonoBehaviour
 
     private void OnEnemyDefeated(object data)
     {
-        // Add 3 seconds to timer when enemy is defeated
-        timeLeft += 3f;
-        Debug.Log("GameManager: Enemy defeated! Added 3 seconds to timer");
+        // Get combo time multiplier
+        float comboTimeBonus = 0f;
+        if (ComboSystem.Instance != null)
+        {
+            comboTimeBonus = ComboSystem.Instance.GetTimeMultiplier();
+        }
+        
+        // Base 3 seconds + combo bonus (max +60% = 4.8s at SSS)
+        float timeBonus = 3f * (1f + comboTimeBonus);
+        timeLeft += timeBonus;
+        Debug.Log($"GameManager: Enemy defeated! Added {timeBonus:F2} seconds to timer (combo bonus: +{comboTimeBonus*100}%)");
     }
 
     private void OnBulletMissed(object data)
@@ -150,9 +164,17 @@ public class GameManager : MonoBehaviour
             timeBonus = GameStageManager.Instance.GetCollectibleTimeBonus();
         }
         
-        // Add time bonus for collecting collectibles
-        timeLeft += timeBonus;
-        Debug.Log($"GameManager: Collectible collected! Added {timeBonus} seconds to timer");
+        // Get combo time multiplier
+        float comboTimeBonus = 0f;
+        if (ComboSystem.Instance != null)
+        {
+            comboTimeBonus = ComboSystem.Instance.GetTimeMultiplier();
+        }
+        
+        // Apply combo multiplier (max +60% = 2.4s at SSS from base 1.5s)
+        float finalTimeBonus = timeBonus * (1f + comboTimeBonus);
+        timeLeft += finalTimeBonus;
+        Debug.Log($"GameManager: Collectible collected! Added {finalTimeBonus:F2} seconds to timer (combo bonus: +{comboTimeBonus*100}%)");
         
         // Don't collect charges while power-up is active
         if (isPowerUpActive)

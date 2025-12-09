@@ -84,10 +84,31 @@ public class PlayerController : MonoBehaviour
     // Called once per frame
     void Update()
     {
+        // Update move speed based on combo rank
+        UpdateSpeedFromCombo();
+        
         // State machine now handles calling the appropriate methods
         // HandleMovement();
         // HandleJumping();
         // HandleShooting();
+    }
+    
+    private void UpdateSpeedFromCombo()
+    {
+        if (ComboSystem.Instance == null) return;
+        
+        ComboRank combo = ComboSystem.Instance.GetCurrentCombo();
+        float comboSpeedBonus = 0f;
+        
+        // Add speed bonus based on combo rank (5% per rank)
+        if (combo != ComboRank.None)
+        {
+            comboSpeedBonus = (int)combo * 0.05f; // C=5%, B=10%, A=15%, S=20%, SS=25%, SSS=30%
+        }
+        
+        // Apply combo bonus on top of base/power-up speed
+        float powerUpMultiplier = (moveSpeed / baseMoveSpeed > 1.5f) ? 2f : 1f; // Check if power-up active
+        moveSpeed = baseMoveSpeed * powerUpMultiplier * (1f + comboSpeedBonus);
     }
     
     public void HandleMovement()

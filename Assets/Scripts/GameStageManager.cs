@@ -46,17 +46,21 @@ public class GameStageManager : MonoBehaviour
                 new GameStageData(GameStage.Early, 0f, 1.0f, 0.0f, 1.0f) 
                 { 
                     bulletMissPenalty = 1f,      // Early: -1s for missing
-                    collectibleTimeBonus = 1.5f  // Early: +1.5s for collectibles
+                    collectibleTimeBonus = 1.5f,  // Early: +1.5s for collectibles
+                    stageMusic = AudioManager.Instance?.earlyGameMusic
                 },
                 new GameStageData(GameStage.Mid, 60f, 1.3f, 0.2f, 1.5f) 
                 { 
                     bulletMissPenalty = 2f,      // Mid: -2s for missing  
-                    collectibleTimeBonus = 1.5f  // Mid: +1.5s for collectibles
+                    collectibleTimeBonus = 1.5f,  // Mid: +1.5s for collectibles
+                    stageMusic = AudioManager.Instance?.midGameMusic
                 },
-                new GameStageData(GameStage.Late, 120f, 1.6f, 0.5f, 2.0f) 
+                new GameStageData(GameStage.Late, 180f, 1.6f, 0.5f, 2.0f) 
                 { 
                     bulletMissPenalty = 3f,      // Late: -3s for missing
-                    collectibleTimeBonus = 1.5f  // Late: +1.5s for collectibles
+                    collectibleTimeBonus = 1.5f,  // Late: +1.5s for collectibles
+                    stageMusic = AudioManager.Instance?.lateGameMusic,
+                    alternateMusic = AudioManager.Instance?.lateGameMusic2
                 }
             };
         }

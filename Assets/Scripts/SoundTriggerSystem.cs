@@ -2,16 +2,8 @@ using UnityEngine;
 
 public class SoundTriggerSystem : MonoBehaviour
 {
-    [Header("Sound Effects")]
-    [SerializeField] private AudioClip enemyDefeatSound;
-    [SerializeField] private AudioClip collectibleSound;
-    [SerializeField] private AudioClip achievementSound;
-    [SerializeField] private AudioClip levelCompleteSound;
-    [SerializeField] private AudioClip timerWarningSound;
-    [SerializeField] private AudioClip bulletShotSound;
-    [SerializeField] private AudioClip powerUpLoopSound;
-    
     private bool isPowerUpSoundPlaying = false;
+    private ComboRank lastComboRank = ComboRank.None;
 
     private void Start()
     {
@@ -40,6 +32,25 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
         EventManager.Instance.Unsubscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
+    
+    private void Update()
+    {
+        // Check for combo rank changes to play sound
+        if (ComboSystem.Instance != null)
+        {
+            ComboRank currentRank = ComboSystem.Instance.GetCurrentCombo();
+            
+            if (currentRank != lastComboRank && currentRank > lastComboRank)
+            {
+                // Combo ranked up! Play sound with pitch based on rank
+                float pitch = 1f + ((int)currentRank * 0.1f); // C=1.1, B=1.2, A=1.3, S=1.4, SS=1.5, SSS=1.6
+                AudioManager.Instance.PlaySFXWithPitch(AudioManager.Instance.comboRankUpSFX, pitch);
+                Debug.Log($"SoundTriggerSystem: Combo rank up to {currentRank}! Pitch: {pitch}");
+            }
+            
+            lastComboRank = currentRank;
+        }
+    }
 
     private void OnEnemyDefeated(object data)
     {
@@ -56,13 +67,12 @@ public class SoundTriggerSystem : MonoBehaviour
     private void OnAchievementUnlocked(object data)
     {
         Debug.Log("SoundTriggerSystem: Achievement unlocked - triggering sound");
-
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.achievementUnlockSFX);
     }
 
     private void OnLevelComplete(object data)
     {
         Debug.Log("SoundTriggerSystem: Level complete - triggering sound");
-      
     }
 
     private void OnTimerTicked(object data)
@@ -86,9 +96,10 @@ public class SoundTriggerSystem : MonoBehaviour
     private void OnPowerUpActivated(object data)
     {
         Debug.Log("SoundTriggerSystem: Power-up activated - starting loop sound");
-        if (powerUpLoopSound != null)
+        
+        if (AudioManager.Instance.powerUpLoopSFX != null)
         {
-            AudioManager.Instance.PlayLoopingSFX(powerUpLoopSound);
+            AudioManager.Instance.PlayLoopingSFX(AudioManager.Instance.powerUpLoopSFX);
             isPowerUpSoundPlaying = true;
         }
     }

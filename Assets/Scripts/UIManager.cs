@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI chargesText;
     [SerializeField] private TextMeshProUGUI powerUpText;
+    [SerializeField] private TextMeshProUGUI comboText;
     [SerializeField] private GameObject levelCompletePanel;
     [SerializeField] private TextMeshProUGUI achievementText;
     
@@ -48,6 +49,31 @@ public class UIManager : MonoBehaviour
         
         if (powerUpText != null)
             powerUpText.enabled = false;
+            
+        if (comboText != null)
+            comboText.text = "";
+    }
+    
+    void Update()
+    {
+        // Update combo display every frame
+        if (comboText != null && ComboSystem.Instance != null)
+        {
+            ComboRank combo = ComboSystem.Instance.GetCurrentCombo();
+            if (combo != ComboRank.None)
+            {
+                int hits = ComboSystem.Instance.GetConsecutiveHits();
+                float timeLeft = ComboSystem.Instance.GetTimeUntilDecay();
+                comboText.text = $"COMBO: {combo} ({hits} hits) - {timeLeft:F1}s";
+                
+                // Color based on rank
+                comboText.color = GetComboColor(combo);
+            }
+            else
+            {
+                comboText.text = "";
+            }
+        }
     }
 
     private void OnDestroy()
@@ -191,6 +217,20 @@ public class UIManager : MonoBehaviour
         {
             powerUpText.enabled = false;
             Debug.Log("UIManager: Power-up deactivated");
+        }
+    }
+    
+    private Color GetComboColor(ComboRank combo)
+    {
+        switch (combo)
+        {
+            case ComboRank.C: return Color.white;
+            case ComboRank.B: return Color.cyan;
+            case ComboRank.A: return Color.green;
+            case ComboRank.S: return Color.yellow;
+            case ComboRank.SS: return new Color(1f, 0.5f, 0f); // Orange
+            case ComboRank.SSS: return Color.red;
+            default: return Color.white;
         }
     }
     

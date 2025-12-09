@@ -12,10 +12,19 @@ public class AudioManager : MonoBehaviour
     public AudioClip lateGameMusic;   // Late game stage primary music
     public AudioClip lateGameMusic2;  // Late game stage alternate music
 
-    [Header("SFX")]
+    [Header("Gameplay SFX")]
     public AudioClip shootSFX;
-    public AudioClip coinSFX;
     public AudioClip enemyHitSFX;
+    
+    [Header("Collectible SFX")]
+    public AudioClip coinSFX;
+    
+    [Header("Power-Up SFX")]
+    public AudioClip powerUpLoopSFX;
+    
+    [Header("Achievement & Combo SFX")]
+    public AudioClip achievementUnlockSFX;
+    public AudioClip comboRankUpSFX; // Used for all combo rank ups with pitch variation
 
     private AudioSource musicSource;
     private AudioSource sfxSource;
@@ -54,6 +63,16 @@ public class AudioManager : MonoBehaviour
     {
         if (clip != null)
             sfxSource.PlayOneShot(clip);
+    }
+    
+    public void PlaySFXWithPitch(AudioClip clip, float pitch)
+    {
+        if (clip != null && sfxSource != null)
+        {
+            sfxSource.pitch = pitch;
+            sfxSource.PlayOneShot(clip);
+            sfxSource.pitch = 1f; // Reset to normal pitch
+        }
     }
     
     public void PlayLoopingSFX(AudioClip clip)
