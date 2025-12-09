@@ -12,4 +12,5 @@ public static class GameEvents
     public const string onTimerTicked = "onTimerTicked";
 
     public const string onBulletShot = "onBulletShot";
+    public const string onBulletMissed = "onBulletMissed";
 }

@@ -36,9 +36,7 @@ public class UIManager : MonoBehaviour
     private void OnTimerTicked(object data)
     {
         float timeRemaining = (float)data;
-        int seconds = Mathf.CeilToInt(timeRemaining);
-        timerText.text = "Time Left: " + seconds;
-        Debug.Log($"UIManager: Updated timer to {seconds} seconds");
+        timerText.text = $"Time Left: {timeRemaining:F2}";
     }
 
 

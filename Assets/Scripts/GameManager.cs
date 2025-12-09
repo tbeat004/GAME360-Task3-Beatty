@@ -23,14 +23,12 @@ public class GameManager : MonoBehaviour
 {
     if (!isRoundActive) return;
 
-    float previousTime = Mathf.Ceil(timeLeft);
     timeLeft -= Time.deltaTime;
-    float currentTime = Mathf.Ceil(timeLeft);
     if (timeLeft < 0f) timeLeft = 0f;
-    if (previousTime != currentTime)
-        {
-            EventManager.Instance.TriggerEvent(GameEvents.onTimerTicked, timeLeft);
-        }
+    
+    // Trigger event every frame for immediate UI updates
+    EventManager.Instance.TriggerEvent(GameEvents.onTimerTicked, timeLeft);
+    
     if (timeLeft <= 0f)
         EndRound();
 }
@@ -51,13 +49,38 @@ public class GameManager : MonoBehaviour
         score = 0;
         timeLeft = roundTime;
         isRoundActive = true;
+        
+        // Subscribe to events for timer modification
+        EventManager.Instance.Subscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
+        EventManager.Instance.Subscribe(GameEvents.onBulletMissed, OnBulletMissed);
+    }
+
+    void OnDestroy()
+    {
+        // Unsubscribe from events
+        EventManager.Instance?.Unsubscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
+        EventManager.Instance?.Unsubscribe(GameEvents.onBulletMissed, OnBulletMissed);
     }
 
     public void AddScore(int amount)
     {
         score += amount;
         EventManager.Instance.TriggerEvent(GameEvents.onScoreChanged, score);
+    }
 
+    private void OnEnemyDefeated(object data)
+    {
+        // Add 3 seconds to timer when enemy is defeated
+        timeLeft += 3f;
+        Debug.Log("GameManager: Enemy defeated! Added 3 seconds to timer");
+    }
+
+    private void OnBulletMissed(object data)
+    {
+        // Remove 1 second from timer when bullet misses
+        timeLeft -= 1f;
+        if (timeLeft < 0f) timeLeft = 0f;
+        Debug.Log("GameManager: Bullet missed! Removed 1 second from timer");
     }
 
 
