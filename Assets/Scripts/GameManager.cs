@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     private bool isPowerUpActive = false;
     private float powerUpTimeLeft = 0f;
     private float scoreMultiplier = 1.0f;
+    private float stageScoreMultiplier = 1.0f; // Additional multiplier from game stage
 
  void Update()
 {
@@ -76,6 +77,7 @@ public class GameManager : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Subscribe(GameEvents.onBulletMissed, OnBulletMissed);
         EventManager.Instance.Subscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance.Subscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
 
     void OnDestroy()
@@ -84,12 +86,15 @@ public class GameManager : MonoBehaviour
         EventManager.Instance?.Unsubscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance?.Unsubscribe(GameEvents.onBulletMissed, OnBulletMissed);
         EventManager.Instance?.Unsubscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance?.Unsubscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
 
     public void AddScore(int amount)
     {
-        // Apply score multiplier (1.0 normal, 1.2 during power-up)
-        int finalAmount = Mathf.RoundToInt(amount * scoreMultiplier);
+        // Apply score multipliers: base (1.0) + power-up bonus (0.2) + stage bonus (0.5, 1.0, etc.)
+        // Multipliers are additive: 1.0 + 0.2 (power-up) + 0.5 (mid game) = 1.7x total
+        float totalMultiplier = scoreMultiplier + (stageScoreMultiplier - 1.0f);
+        int finalAmount = Mathf.RoundToInt(amount * totalMultiplier);
         score += finalAmount;
         EventManager.Instance.TriggerEvent(GameEvents.onScoreChanged, score);
     }
@@ -123,14 +128,32 @@ public class GameManager : MonoBehaviour
 
     private void OnBulletMissed(object data)
     {
-        // Remove 1 second from timer when bullet misses
-        timeLeft -= 1f;
+        // Get stage-based penalty from GameStageManager
+        float penalty = 1f; // Default penalty
+        if (GameStageManager.Instance != null)
+        {
+            penalty = GameStageManager.Instance.GetBulletMissPenalty();
+        }
+        
+        // Remove time from timer when bullet misses
+        timeLeft -= penalty;
         if (timeLeft < 0f) timeLeft = 0f;
-        Debug.Log("GameManager: Bullet missed! Removed 1 second from timer");
+        Debug.Log($"GameManager: Bullet missed! Removed {penalty} seconds from timer");
     }
     
     private void OnCollectibleCollected(object data)
     {
+        // Get stage-based time bonus from GameStageManager
+        float timeBonus = 2f; // Default bonus
+        if (GameStageManager.Instance != null)
+        {
+            timeBonus = GameStageManager.Instance.GetCollectibleTimeBonus();
+        }
+        
+        // Add time bonus for collecting collectibles
+        timeLeft += timeBonus;
+        Debug.Log($"GameManager: Collectible collected! Added {timeBonus} seconds to timer");
+        
         // Don't collect charges while power-up is active
         if (isPowerUpActive)
         {
@@ -149,6 +172,13 @@ public class GameManager : MonoBehaviour
         {
             ActivatePowerUp();
         }
+    }
+    
+    private void OnGameStageChanged(object data)
+    {
+        GameStageData stageData = (GameStageData)data;
+        stageScoreMultiplier = stageData.scoreMultiplier;
+        Debug.Log($"GameManager: Game stage changed to {stageData.stage}. Score multiplier now {stageScoreMultiplier}x");
     }
     
     private void ActivatePowerUp()

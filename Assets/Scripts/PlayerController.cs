@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
     private bool isGrounded = false;
+    private float baseMoveSpeed; // Store original speed
 
     public GameObject bulletPrefab;   
     public Transform firePoint;       
@@ -55,6 +56,29 @@ public class PlayerController : MonoBehaviour
     {
         // Initialize with Idle state
         stateMachine.ChangeState(idleState);
+        
+        // Store base speed and subscribe to power-up events
+        baseMoveSpeed = moveSpeed;
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+    }
+    
+    void OnDestroy()
+    {
+        EventManager.Instance?.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance?.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+    }
+    
+    private void OnPowerUpActivated(object data)
+    {
+        moveSpeed = baseMoveSpeed * 2f; // 2x speed during power-up
+        Debug.Log($"PlayerController: Power-up activated! Speed boosted to {moveSpeed}");
+    }
+    
+    private void OnPowerUpDeactivated(object data)
+    {
+        moveSpeed = baseMoveSpeed; // Restore normal speed
+        Debug.Log($"PlayerController: Power-up deactivated. Speed restored to {moveSpeed}");
     }
     
     // Called once per frame

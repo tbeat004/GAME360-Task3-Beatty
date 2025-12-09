@@ -24,6 +24,7 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onBulletShot, OnBulletShot);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+        EventManager.Instance.Subscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
 
     private void OnDestroy()
@@ -37,6 +38,7 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onBulletShot, OnBulletShot);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+        EventManager.Instance.Unsubscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
 
     private void OnEnemyDefeated(object data)
@@ -98,6 +100,18 @@ public class SoundTriggerSystem : MonoBehaviour
         {
             AudioManager.Instance.StopLoopingSFX();
             isPowerUpSoundPlaying = false;
+        }
+    }
+    
+    private void OnGameStageChanged(object data)
+    {
+        GameStageData stageData = (GameStageData)data;
+        Debug.Log($"SoundTriggerSystem: Game stage changed to {stageData.stage}");
+        
+        // Play the music for this stage (GameStageManager handles alternating for Late game)
+        if (stageData.stageMusic != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGM(stageData.stageMusic);
         }
     }
 }

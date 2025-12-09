@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed = 20f;   
+    public float speed = 50f;   
     public float lifetime = 2f;
     private bool hitEnemy = false;
 
@@ -13,7 +13,6 @@ public class Bullet : MonoBehaviour
 
     void Update()
     {
-        
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 

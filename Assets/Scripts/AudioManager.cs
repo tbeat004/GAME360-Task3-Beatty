@@ -7,6 +7,10 @@ public class AudioManager : MonoBehaviour
     [Header("Music")]
     public AudioClip menuMusic;
     public AudioClip gameplayMusic;
+    public AudioClip earlyGameMusic;  // Early game stage music
+    public AudioClip midGameMusic;    // Mid game stage music
+    public AudioClip lateGameMusic;   // Late game stage primary music
+    public AudioClip lateGameMusic2;  // Late game stage alternate music
 
     [Header("SFX")]
     public AudioClip shootSFX;
@@ -34,8 +38,16 @@ public class AudioManager : MonoBehaviour
     public void PlayBGM(AudioClip clip)
     {
         if (clip == null) return;
+        
+        // Only change music if it's different from what's currently playing
+        if (musicSource.clip == clip && musicSource.isPlaying)
+        {
+            return; // Already playing this track
+        }
+        
         musicSource.clip = clip;
         musicSource.Play();
+        Debug.Log($"AudioManager: Now playing {clip.name}");
     }
 
     public void PlaySFX(AudioClip clip)

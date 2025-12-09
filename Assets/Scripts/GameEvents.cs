@@ -16,4 +16,5 @@ public static class GameEvents
     public const string onPowerUpActivated = "onPowerUpActivated";
     public const string onPowerUpDeactivated = "onPowerUpDeactivated";
     public const string onChargesUpdated = "onChargesUpdated";
+    public const string onGameStageChanged = "onGameStageChanged";
 }
