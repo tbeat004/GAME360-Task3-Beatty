@@ -15,6 +15,7 @@ public class AudioManager : MonoBehaviour
 
     private AudioSource musicSource;
     private AudioSource sfxSource;
+    private AudioSource loopingSFXSource; // Dedicated source for looping SFX
 
     void Awake()
     {
@@ -25,6 +26,9 @@ public class AudioManager : MonoBehaviour
         musicSource.loop = true;
 
         sfxSource = gameObject.AddComponent<AudioSource>();
+        
+        loopingSFXSource = gameObject.AddComponent<AudioSource>();
+        loopingSFXSource.loop = true;
     }
 
     public void PlayBGM(AudioClip clip)
@@ -38,6 +42,24 @@ public class AudioManager : MonoBehaviour
     {
         if (clip != null)
             sfxSource.PlayOneShot(clip);
+    }
+    
+    public void PlayLoopingSFX(AudioClip clip)
+    {
+        if (clip != null && loopingSFXSource != null)
+        {
+            loopingSFXSource.clip = clip;
+            loopingSFXSource.Play();
+        }
+    }
+    
+    public void StopLoopingSFX()
+    {
+        if (loopingSFXSource != null)
+        {
+            loopingSFXSource.Stop();
+            loopingSFXSource.clip = null;
+        }
     }
 }
 

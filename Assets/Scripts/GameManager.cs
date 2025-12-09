@@ -131,8 +131,18 @@ public class GameManager : MonoBehaviour
     
     private void OnCollectibleCollected(object data)
     {
+        // Don't collect charges while power-up is active
+        if (isPowerUpActive)
+        {
+            Debug.Log("GameManager: Power-up active - charges not counted");
+            return;
+        }
+        
         currentCharges++;
         Debug.Log($"GameManager: Charge collected! ({currentCharges}/{chargesNeededForPowerUp})");
+        
+        // Trigger charge update event with the NEW charge count
+        EventManager.Instance.TriggerEvent(GameEvents.onChargesUpdated, currentCharges);
         
         // Activate power-up when reaching required charges
         if (currentCharges >= chargesNeededForPowerUp)

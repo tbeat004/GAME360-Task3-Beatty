@@ -31,13 +31,21 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Subscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Subscribe(GameEvents.onBulletMissed, OnBulletMissed);
-        EventManager.Instance.Subscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance.Subscribe(GameEvents.onChargesUpdated, OnChargesUpdated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
         
         // Initialize charge and power-up UI
         if (chargesText != null)
+        {
             chargesText.text = "Charges: 0/10";
+            Debug.Log("UIManager: Initialized charges text to: " + chargesText.text);
+        }
+        else
+        {
+            Debug.LogError("UIManager: chargesText is NULL! Assign it in the inspector!");
+        }
+        
         if (powerUpText != null)
             powerUpText.enabled = false;
     }
@@ -51,7 +59,7 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Unsubscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Unsubscribe(GameEvents.onBulletMissed, OnBulletMissed);
-        EventManager.Instance.Unsubscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
+        EventManager.Instance.Unsubscribe(GameEvents.onChargesUpdated, OnChargesUpdated);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
     }
@@ -143,13 +151,17 @@ public class UIManager : MonoBehaviour
         achievementText.enabled = false;
     }
     
-    private void OnCollectibleCollected(object data)
+    private void OnChargesUpdated(object data)
     {
-        int charges = GameManager.Instance.GetCurrentCharges();
         if (chargesText != null)
         {
-            chargesText.text = $"Charges: {charges}/10";
-            Debug.Log($"UIManager: Updated charges to {charges}/10");
+            int charges = (int)data;
+            chargesText.text = string.Format("Charges: {0}/10", charges);
+            Debug.Log($"UIManager: Charges text updated to: {chargesText.text}");
+        }
+        else
+        {
+            Debug.LogError("UIManager: chargesText is null!");
         }
     }
     
@@ -163,6 +175,13 @@ public class UIManager : MonoBehaviour
             powerUpText.text = "POWER-UP ACTIVE! +20% Score!";
             Debug.Log("UIManager: Power-up activated!");
         }
+        
+        // Reset charges display when power-up activates
+        if (chargesText != null)
+        {
+            chargesText.text = "Charges: 0/10";
+        }
+        
         StartCoroutine(UpdatePowerUpTimer());
     }
     
@@ -175,6 +194,7 @@ public class UIManager : MonoBehaviour
         }
     }
     
+    // Updates the timer of the power up
     private IEnumerator UpdatePowerUpTimer()
     {
         while (GameManager.Instance.IsPowerUpActive())

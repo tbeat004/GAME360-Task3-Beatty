@@ -15,4 +15,5 @@ public static class GameEvents
     public const string onBulletMissed = "onBulletMissed";
     public const string onPowerUpActivated = "onPowerUpActivated";
     public const string onPowerUpDeactivated = "onPowerUpDeactivated";
+    public const string onChargesUpdated = "onChargesUpdated";
 }

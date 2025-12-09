@@ -9,6 +9,9 @@ public class SoundTriggerSystem : MonoBehaviour
     [SerializeField] private AudioClip levelCompleteSound;
     [SerializeField] private AudioClip timerWarningSound;
     [SerializeField] private AudioClip bulletShotSound;
+    [SerializeField] private AudioClip powerUpLoopSound;
+    
+    private bool isPowerUpSoundPlaying = false;
 
     private void Start()
     {
@@ -19,6 +22,8 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onLevelComplete, OnLevelComplete);
         EventManager.Instance.Subscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Subscribe(GameEvents.onBulletShot, OnBulletShot);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
     }
 
     private void OnDestroy()
@@ -30,6 +35,8 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onLevelComplete, OnLevelComplete);
         EventManager.Instance.Unsubscribe(GameEvents.onTimerTicked, OnTimerTicked);
         EventManager.Instance.Unsubscribe(GameEvents.onBulletShot, OnBulletShot);
+        EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
+        EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
     }
 
     private void OnEnemyDefeated(object data)
@@ -72,5 +79,25 @@ public class SoundTriggerSystem : MonoBehaviour
     {
         Debug.Log("SoundTriggerSystem: Bullet shot - triggering sound");
         AudioManager.Instance.PlaySFX(AudioManager.Instance.shootSFX);
+    }
+    
+    private void OnPowerUpActivated(object data)
+    {
+        Debug.Log("SoundTriggerSystem: Power-up activated - starting loop sound");
+        if (powerUpLoopSound != null)
+        {
+            AudioManager.Instance.PlayLoopingSFX(powerUpLoopSound);
+            isPowerUpSoundPlaying = true;
+        }
+    }
+    
+    private void OnPowerUpDeactivated(object data)
+    {
+        Debug.Log("SoundTriggerSystem: Power-up deactivated - stopping loop sound");
+        if (isPowerUpSoundPlaying)
+        {
+            AudioManager.Instance.StopLoopingSFX();
+            isPowerUpSoundPlaying = false;
+        }
     }
 }
