@@ -165,7 +165,7 @@ public class UIManager : MonoBehaviour
         string achievementName = (string)data;
 
         achievementText.enabled = true;
-        achievementText.text = "Achievement Unlocked: " + achievementName;
+        achievementText.text = "" + achievementName;
         Debug.Log("UIManager: Showing achievement popup for " + achievementName);
 
         // Hide after 3 seconds 
