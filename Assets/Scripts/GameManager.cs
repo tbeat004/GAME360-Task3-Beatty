@@ -231,6 +231,12 @@ public class GameManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        
+        // Stop all game music before returning to menu
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAllMusic();
+        }
 
         SceneManager.LoadScene("Main Menu");
     }

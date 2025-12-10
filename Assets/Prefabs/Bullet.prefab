@@ -141,7 +141,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &-7142920793549084154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,5 +154,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8293c1dee3670044b0aa3eb1e7e6dc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bullet
-  speed: 150
+  speed: 50
   lifetime: 2

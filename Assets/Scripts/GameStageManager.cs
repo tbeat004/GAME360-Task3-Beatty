@@ -41,6 +41,13 @@ public class GameStageManager : MonoBehaviour
         if (stages == null || stages.Length == 0)
         {
             Debug.Log("GameStageManager: Initializing default stages");
+            
+            // Ensure AudioManager exists before referencing it
+            if (AudioManager.Instance == null)
+            {
+                Debug.LogError("GameStageManager: AudioManager.Instance is null!");
+            }
+            
             stages = new GameStageData[]
             {
                 new GameStageData(GameStage.Early, 0f, 1.0f, 0.0f, 1.0f) 
@@ -63,6 +70,10 @@ public class GameStageManager : MonoBehaviour
                     alternateMusic = AudioManager.Instance?.lateGameMusic2
                 }
             };
+            
+            Debug.Log($"GameStageManager: Early music assigned: {stages[0].stageMusic?.name ?? "NULL"}");
+            Debug.Log($"GameStageManager: Mid music assigned: {stages[1].stageMusic?.name ?? "NULL"}");
+            Debug.Log($"GameStageManager: Late music assigned: {stages[2].stageMusic?.name ?? "NULL"}");
         }
         
         // Subscribe to timer events to check for stage transitions
@@ -73,6 +84,8 @@ public class GameStageManager : MonoBehaviour
         currentStageIndex = 0;
         elapsedTime = 0f;
         roundActive = true;
+        
+        Debug.Log($"GameStageManager: Triggering initial stage change event for {stages[0].stage}");
         EventManager.Instance.TriggerEvent(GameEvents.onGameStageChanged, stages[0]);
         Debug.Log("GameStageManager: Started in Early Game stage");
     }

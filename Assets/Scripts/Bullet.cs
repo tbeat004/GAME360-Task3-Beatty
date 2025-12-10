@@ -5,16 +5,11 @@ public class Bullet : MonoBehaviour
     public float speed = 150f;   
     public float lifetime = 2f;
     private bool hitEnemy = false;
+    private Rigidbody rb;
 
     void Awake()
     {
-        // Set collision detection to ContinuousDynamic to prevent fast bullets from phasing through objects
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-        }
+        rb = GetComponent<Rigidbody>();
     }
 
     void Start()
@@ -22,9 +17,14 @@ public class Bullet : MonoBehaviour
         Destroy(gameObject, lifetime); 
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        // Use MovePosition with the Rigidbody for physics-based movement
+        if (rb != null)
+        {
+            Vector3 newPosition = rb.position + transform.forward * speed * Time.fixedDeltaTime;
+            rb.MovePosition(newPosition);
+        }
     }
 
     void OnTriggerEnter(Collider other)

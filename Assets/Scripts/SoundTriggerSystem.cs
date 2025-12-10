@@ -5,9 +5,9 @@ public class SoundTriggerSystem : MonoBehaviour
     private bool isPowerUpSoundPlaying = false;
     private ComboRank lastComboRank = ComboRank.None;
 
-    private void Start()
+    private void Awake()
     {
-        // Subscribe to events
+        // Subscribe to events in Awake to ensure we catch early events
         EventManager.Instance.Subscribe(GameEvents.onEnemyDefeated, OnEnemyDefeated);
         EventManager.Instance.Subscribe(GameEvents.onCollectibleCollected, OnCollectibleCollected);
         EventManager.Instance.Subscribe(GameEvents.onAchievementUnlocked, OnAchievementUnlocked);
@@ -17,6 +17,8 @@ public class SoundTriggerSystem : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
         EventManager.Instance.Subscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
+        
+        Debug.Log("SoundTriggerSystem: Subscribed to all events in Awake");
     }
 
     private void OnDestroy()
@@ -61,7 +63,7 @@ public class SoundTriggerSystem : MonoBehaviour
     private void OnCollectibleCollected(object data)
     {
         Debug.Log("SoundTriggerSystem: Collectible collected - triggering sound");
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.coinSFX);
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.coinSFX, AudioManager.Instance.coinSFXVolume);
     }
 
     private void OnAchievementUnlocked(object data)
@@ -119,10 +121,21 @@ public class SoundTriggerSystem : MonoBehaviour
         GameStageData stageData = (GameStageData)data;
         Debug.Log($"SoundTriggerSystem: Game stage changed to {stageData.stage}");
         
-        // Play the music for this stage (GameStageManager handles alternating for Late game)
+        // Play the music for this stage 
         if (stageData.stageMusic != null && AudioManager.Instance != null)
         {
-            AudioManager.Instance.PlayBGM(stageData.stageMusic);
+            // Use crossfade for transitions, but not for the initial Early game music
+            bool useCrossfade = stageData.stage != GameStage.Early;
+            
+            // Set looping based on stage - don't loop mid game music
+            bool shouldLoop = stageData.stage != GameStage.Mid;
+            
+            AudioManager.Instance.PlayBGM(stageData.stageMusic, useCrossfade, shouldLoop);
+            Debug.Log($"SoundTriggerSystem: Playing {stageData.stageMusic.name} (crossfade: {useCrossfade}, loop: {shouldLoop})");
+        }
+        else
+        {
+            Debug.LogWarning($"SoundTriggerSystem: Cannot play music - stageMusic is null: {stageData.stageMusic == null}, AudioManager exists: {AudioManager.Instance != null}");
         }
     }
 }
