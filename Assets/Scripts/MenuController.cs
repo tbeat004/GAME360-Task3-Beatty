@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MenuController : MonoBehaviour
 {
     [Header("UI References")]
     public Slider volumeSlider;
+    public TextMeshProUGUI highScoreText;
     
     private MenuAudioPlayer audioPlayer;
     
@@ -16,6 +18,18 @@ public class MenuController : MonoBehaviour
         {
             volumeSlider.value = audioPlayer.volume;
             volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        }
+        
+        // Display high score
+        if (highScoreText != null)
+        {
+            int highScore = HighScoreManager.GetHighScore();
+            highScoreText.text = $"High Score: {highScore}";
+            Debug.Log($"MenuController: Displaying high score: {highScore}");
+        }
+        else
+        {
+            Debug.LogWarning("MenuController: highScoreText is not assigned in Inspector!");
         }
     }
     

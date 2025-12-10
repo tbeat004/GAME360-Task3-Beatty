@@ -228,6 +228,9 @@ public class GameManager : MonoBehaviour
     private void EndRound()
     {
         isRoundActive = false;
+        
+        // Save high score
+        HighScoreManager.SaveHighScore(score);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
