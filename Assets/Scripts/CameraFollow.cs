@@ -11,17 +11,22 @@ public class CameraFollow : MonoBehaviour
     public Vector2 pitchLimits = new Vector2(-30f, 60f); 
 
     private float yaw = 0f;
-    private float pitch = 20f; 
+    private float pitch = 20f;
+    private PauseMenu pauseMenu; 
 
     void Start()
     {
-     
         Cursor.lockState = CursorLockMode.Locked;
+        pauseMenu = FindFirstObjectByType<PauseMenu>();
     }
 
     void LateUpdate()
     {
         if (target == null) return;
+        
+        // Don't move camera when paused
+        if (pauseMenu != null && pauseMenu.IsPaused())
+            return;
 
         float mouseX = Input.GetAxis("Mouse X") * sensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivity;

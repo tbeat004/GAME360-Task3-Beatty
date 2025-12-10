@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private bool isGrounded = false;
     private float baseMoveSpeed; // Store original speed
+    private PauseMenu pauseMenu;
 
     public GameObject bulletPrefab;   
     public Transform firePoint;       
@@ -59,6 +60,7 @@ public class PlayerController : MonoBehaviour
         
         // Store base speed and subscribe to power-up events
         baseMoveSpeed = moveSpeed;
+        pauseMenu = FindFirstObjectByType<PauseMenu>();
         EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
     }
@@ -138,6 +140,10 @@ public class PlayerController : MonoBehaviour
 
     public void HandleShooting()
     {
+        // Don't shoot when paused
+        if (pauseMenu != null && pauseMenu.IsPaused())
+            return;
+            
         if (Input.GetMouseButton(0) && Time.time >= nextFire) 
         {
             nextFire = Time.time + fireRate;

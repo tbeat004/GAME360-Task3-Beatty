@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI comboText;
     [SerializeField] private GameObject levelCompletePanel;
     [SerializeField] private TextMeshProUGUI achievementText;
+    [SerializeField] private TextMeshProUGUI stageTransitionText;
     
     private float previousTime;
     private Color originalTimerColor;
@@ -35,6 +36,7 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Subscribe(GameEvents.onChargesUpdated, OnChargesUpdated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Subscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+        EventManager.Instance.Subscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
         
         // Initialize charge and power-up UI
         if (chargesText != null)
@@ -52,6 +54,9 @@ public class UIManager : MonoBehaviour
             
         if (comboText != null)
             comboText.text = "";
+            
+        if (stageTransitionText != null)
+            stageTransitionText.enabled = false;
     }
     
     void Update()
@@ -88,6 +93,7 @@ public class UIManager : MonoBehaviour
         EventManager.Instance.Unsubscribe(GameEvents.onChargesUpdated, OnChargesUpdated);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpActivated, OnPowerUpActivated);
         EventManager.Instance.Unsubscribe(GameEvents.onPowerUpDeactivated, OnPowerUpDeactivated);
+        EventManager.Instance.Unsubscribe(GameEvents.onGameStageChanged, OnGameStageChanged);
     }
 
     private void OnScoreChanged(object data)
@@ -246,5 +252,77 @@ public class UIManager : MonoBehaviour
             }
             yield return new WaitForSeconds(0.1f);
         }
+    }
+    
+    private void OnGameStageChanged(object data)
+    {
+        GameStageData stageData = (GameStageData)data;
+        
+        // Don't show transition for early game (initial stage)
+        if (stageData.stage == GameStage.Early)
+            return;
+            
+        string message = "";
+        Color textColor = Color.white;
+        
+        if (stageData.stage == GameStage.Mid)
+        {
+            message = "MID GAME\nDifficulty Rising!";
+            textColor = new Color(1f, 0.65f, 0f); // Orange
+        }
+        else if (stageData.stage == GameStage.Late)
+        {
+            message = "LATE GAME\nSurvive!";
+            textColor = new Color(1f, 0.2f, 0.2f); // Red
+        }
+        
+        StartCoroutine(ShowStageTransition(message, textColor));
+    }
+    
+    private IEnumerator ShowStageTransition(string message, Color color)
+    {
+        if (stageTransitionText == null)
+            yield break;
+            
+        stageTransitionText.text = message;
+        stageTransitionText.color = color;
+        stageTransitionText.enabled = true;
+        
+        // Scale up animation
+        stageTransitionText.transform.localScale = Vector3.zero;
+        float duration = 0.5f;
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            float scale = Mathf.Lerp(0f, 1.5f, t); // Overshoot to 1.5x
+            stageTransitionText.transform.localScale = Vector3.one * scale;
+            yield return null;
+        }
+        
+        // Settle to normal scale
+        stageTransitionText.transform.localScale = Vector3.one * 1.2f;
+        
+        // Hold for 2 seconds
+        yield return new WaitForSeconds(2f);
+        
+        // Fade out
+        duration = 1f;
+        elapsed = 0f;
+        Color startColor = color;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            Color fadeColor = startColor;
+            fadeColor.a = Mathf.Lerp(1f, 0f, t);
+            stageTransitionText.color = fadeColor;
+            yield return null;
+        }
+        
+        stageTransitionText.enabled = false;
     }
 }
