@@ -86,6 +86,7 @@ Tip: run your repo analytics script (git shortlog / cloc) and update these value
   - Movement: A / D Left, Right; W / S Forward, Backward
   - Jump: Space
   - Attack: Left Mouse Button
+  - Pause: Esc
 
 - Objective:
   - Score as high of a score as possible within a two minute window by collecting coins and shooting enemies.
